@@ -120,17 +120,35 @@ CHECKDIR	= $(CHECKROOT)/checkdir
 CHECKFILES	= $(CHECKROOT)/checkfiles.txt
 SYSFILES	= $(CHECKROOT)/sysfiles.txt
 
+ifeq ($(XTOOLS_LIBC),uClibc)
 SYSROOT_LIBS	= ld$(CLIB64)-uClibc.so.0 ld$(CLIB64)-uClibc-$(UCLIBC_VERSION).so \
 		  libm.so.0 libm-$(UCLIBC_VERSION).so \
 		  libgcc_s.so.1 libgcc_s.so \
 		  libc.so.0 libuClibc-$(UCLIBC_VERSION).so \
 		  libcrypt.so.0 libcrypt-$(UCLIBC_VERSION).so \
 		  libutil.so.0 libutil-$(UCLIBC_VERSION).so
+else ifeq ($(XTOOLS_LIBC),glibc)
+SYSROOT_LIBS	= ld-$(XTOOLS_LIBC_VERSION).so \
+		  libm.so.6 libm-$(XTOOLS_LIBC_VERSION).so \
+		  libgcc_s.so.1 libgcc_s.so \
+		  libc.so.6 libc-$(XTOOLS_LIBC_VERSION).so \
+		  libcrypt.so.1 libcrypt-$(XTOOLS_LIBC_VERSION).so \
+		  libutil.so.1 libutil-$(XTOOLS_LIBC_VERSION).so
+  ifeq ($(ARCH),arm64)
+    SYSROOT_LIBS	+= ld-linux-aarch64.so.1
+  endif
+endif
 
 ifeq ($(EXT3_4_ENABLE),yes)
-SYSROOT_LIBS	+= \
-		  libdl.so.0 libdl-$(UCLIBC_VERSION).so \
-		  libpthread.so.0 libpthread-$(UCLIBC_VERSION).so
+  ifeq ($(XTOOLS_LIBC),uClibc)
+    SYSROOT_LIBS	+= \
+	     	          libdl.so.0 libdl-$(UCLIBC_VERSION).so \
+		  	  libpthread.so.0 libpthread-$(UCLIBC_VERSION).so
+  else ifeq ($(XTOOLS_LIBC),glibc)
+    SYSROOT_LIBS	+= \
+		  	  libdl.so.2 libdl-$(XTOOLS_LIBC_VERSION).so \
+		  	  libpthread.so.0 libpthread-$(XTOOLS_LIBC_VERSION).so
+  endif
 endif
 
 ifeq ($(REQUIRE_CXX_LIBS),yes)
@@ -139,6 +157,8 @@ ifeq ($(REQUIRE_CXX_LIBS),yes)
     SYSROOT_LIBS += libstdc++.so.6.0.20
   else ifeq ($(GCC_VERSION),4.7.3)
     SYSROOT_LIBS += libstdc++.so.6.0.17
+  else ifeq ($(GCC_VERSION),5.3.0)
+    SYSROOT_LIBS += libstdc++.so.6.0.21
   else
     $(error C++ support: Unsupported GCC version: $(GCC_VERSION))
   endif
@@ -146,7 +166,11 @@ endif
 
 # Add librt if ACPI is enabled
 ifeq ($(ACPI_ENABLE),yes)
-  SYSROOT_LIBS += librt.so.0 librt-$(UCLIBC_VERSION).so
+  ifeq ($(XTOOLS_LIBC),uClibc)
+    SYSROOT_LIBS += librt.so.0 librt-$(UCLIBC_VERSION).so
+  else ifeq ($(XTOOLS_LIBC),glibc)
+    SYSROOT_LIBS += librt.so.1 librt-$(XTOOLS_LIBC_VERSION).so
+  endif
 endif
 
 # Optionally add debug utilities

@@ -14,10 +14,10 @@
 #-------------------------------------------------------------------------------
 # Need the Linux kernel downloaded before building xtools
 
-LINUX_VERSION		?= 4.1
-LINUX_MAJOR_VERSION	= $(firstword $(subst ., ,$(LINUX_VERSION)))
-LINUX_MINOR_VERSION	?= 23
-LINUX_RELEASE		?= $(LINUX_VERSION).$(LINUX_MINOR_VERSION)
+LINUX_VERSION		?= 4.1.23
+LINUX_MAJOR_VERSION	= $(shell echo $(LINUX_VERSION) | awk 'BEGIN { FS="."; } {print $$1;}')
+LINUX_MINOR_VERSION	= $(shell echo $(LINUX_VERSION) | awk 'BEGIN { FS="."; } {print $$3;}')
+LINUX_RELEASE		?= $(LINUX_VERSION)
 LINUX_TARBALL		?= linux-$(LINUX_RELEASE).tar.xz
 export LINUX_TARBALL
 export LINUX_RELEASE

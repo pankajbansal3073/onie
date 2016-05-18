@@ -29,7 +29,7 @@ case $ARCH in
         INITRD_LOAD="0x00000000"
         FTD="fdt = \"dtb\";"
         ;;
-    arm)
+    arm*)
         KERNEL_COMPRESSION="gzip"
         KERNEL_LOAD="0x61008000"
         KERNEL_ENTRY="0x61008000"

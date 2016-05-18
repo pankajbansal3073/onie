@@ -9,7 +9,8 @@
 # This is a makefile fragment that defines the build of mtdutils
 #
 
-MTDUTILS_VERSION	= 1.5.0
+MTDUTILS_VERSION	?= 1.5.0
+MTDUTILS_LATEST_RELEASE_VERSION = 1.5.2
 MTDUTILS_COMMIT		= ca39eb1
 MTDUTILS_TARBALL	= mtd-utils-$(MTDUTILS_VERSION).tar.gz
 MTDUTILS_TARBALL_URLS	+= $(ONIE_MIRROR) http://git.infradead.org/mtd-utils.git/snapshot
@@ -36,9 +37,11 @@ mtdutils-download: $(MTDUTILS_DOWNLOAD_STAMP)
 $(MTDUTILS_DOWNLOAD_STAMP): $(PROJECT_STAMP)
 	$(Q) rm -f $@ && eval $(PROFILE_STAMP)
 	$(Q) echo "==== Getting upstream mtdutils ===="
-	$(Q) $(SCRIPTDIR)/fetch-package $(DOWNLOADDIR) $(UPSTREAMDIR) \
-		$(MTDUTILS_COMMIT).tar.gz $(MTDUTILS_TARBALL_URLS)
-	$(Q) cd $(DOWNLOADDIR) && ln -fs $(MTDUTILS_COMMIT).tar.gz $(MTDUTILS_TARBALL)
+	$(Q) if [ $(shell awk 'BEGIN{ print "'$(MTDUTILS_VERSION)'"<="'$(MTDUTILS_LATEST_RELEASE_VERSION)'" }') -eq 1 ]; then \
+		$(SCRIPTDIR)/fetch-package $(DOWNLOADDIR) $(UPSTREAMDIR) \
+			$(MTDUTILS_COMMIT).tar.gz $(MTDUTILS_TARBALL_URLS);\
+		cd $(DOWNLOADDIR) && ln -fs $(MTDUTILS_COMMIT).tar.gz $(MTDUTILS_TARBALL);\
+		 fi
 	$(Q) touch $@
 
 SOURCE += $(MTDUTILS_SOURCE_STAMP)
@@ -46,7 +49,12 @@ mtdutils-source: $(MTDUTILS_SOURCE_STAMP)
 $(MTDUTILS_SOURCE_STAMP): $(TREE_STAMP) | $(MTDUTILS_DOWNLOAD_STAMP)
 	$(Q) rm -f $@ && eval $(PROFILE_STAMP)
 	$(Q) echo "==== Extracting upstream mtdutils ===="
-	$(Q) $(SCRIPTDIR)/extract-package $(MTDUTILS_BUILD_DIR) $(DOWNLOADDIR)/$(MTDUTILS_TARBALL)
+	$(Q) if [ $(shell awk 'BEGIN{ print "'$(MTDUTILS_VERSION)'"<="'$(MTDUTILS_LATEST_RELEASE_VERSION)'" }') -eq 1 ]; then \
+			$(SCRIPTDIR)/extract-package $(MTDUTILS_BUILD_DIR) $(DOWNLOADDIR)/$(MTDUTILS_TARBALL); \
+		 else \
+			git clone git://git.infradead.org/mtd-utils.git \
+				$(MTDUTILS_DIR); \
+		 fi
 	$(Q) touch $@
 
 ifndef MAKE_CLEAN

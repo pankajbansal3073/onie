@@ -11,7 +11,7 @@
 
 #-------------------------------------------------------------------------------
 
-LINUX_CONFIG 		= conf/kernel/$(LINUX_RELEASE)/linux.$(ONIE_ARCH).config
+LINUX_CONFIG 		?= conf/kernel/$(LINUX_RELEASE)/linux.$(ONIE_ARCH).config
 KERNELDIR   		= $(MBUILDDIR)/kernel
 LINUXDIR   		= $(KERNELDIR)/linux
 

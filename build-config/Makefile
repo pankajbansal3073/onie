@@ -162,7 +162,7 @@ ifneq (,$(MAKECMDGOALS))
       $(error Unable to find valid machine configuration directory.)
     endif
     include $(MACHINEDIR)/machine.make
-    ARCHDIR ?= $(realpath ./arch)
+    ARCHDIR ?= $(realpath ./arch/$(ONIE_ARCH))
     include $(ARCHDIR)/$(ONIE_ARCH).make
   endif
 endif
@@ -417,7 +417,7 @@ DEBIAN_BUILD_HOST_PACKAGES	= build-essential stgit u-boot-tools util-linux \
 				  gperf device-tree-compiler python-all-dev xorriso \
 				  autoconf automake bison flex texinfo libtool libtool-bin \
 				  realpath gawk libncurses5 libncurses5-dev bc \
-				  dosfstools mtools
+				  dosfstools mtools git gawk wget
 
 PHONY += debian-prepare-build-host
 debian-prepare-build-host:

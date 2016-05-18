@@ -45,9 +45,9 @@ fi
     exit 1
 }
 
-if [ "$arch" = "powerpc-softfloat" -o "$arch" = "armv7a" ] ; then
-    # Both of these architectures share common installer code as they
-    # are both based on u-boot.
+if [ "$arch" = "powerpc-softfloat" -o "$arch" = "armv7a" -o "$arch" = "armv8a" ] ; then
+    # These architectures share common installer code as they
+    # are based on u-boot.
     arch_dir="u-boot-arch"
 else
     arch_dir="$arch"
