@@ -13,14 +13,14 @@
 # This is a makefile fragment that defines the build of busybox
 #
 
-BUSYBOX_VERSION		= 1.20.2
+BUSYBOX_VERSION		?= 1.20.2
 BUSYBOX_TARBALL		= busybox-$(BUSYBOX_VERSION).tar.bz2
-BUSYBOX_TARBALL_URLS	+= $(ONIE_MIRROR) http://www.busybox.net/downloads
+BUSYBOX_TARBALL_URLS	+= $(ONIE_MIRROR) https://www.busybox.net/downloads
 BUSYBOX_BUILD_DIR	= $(MBUILDDIR)/busybox
 BUSYBOX_DIR		= $(BUSYBOX_BUILD_DIR)/busybox-$(BUSYBOX_VERSION)
-BUSYBOX_CONFIG		= conf/busybox.config
+BUSYBOX_CONFIG		?= conf/busybox.config
 
-BUSYBOX_SRCPATCHDIR	= $(PATCHDIR)/busybox
+BUSYBOX_SRCPATCHDIR	= $(PATCHDIR)/busybox/$(BUSYBOX_VERSION)
 BUSYBOX_PATCHDIR	= $(BUSYBOX_BUILD_DIR)/patch
 MACHINE_BUSYBOX_CONFDIR ?= $(MACHINEDIR)/busybox/conf
 BUSYBOX_DOWNLOAD_STAMP	= $(DOWNLOADDIR)/busybox-download
