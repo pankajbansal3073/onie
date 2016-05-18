@@ -18,7 +18,7 @@ PATCH_ROOT=`dirname $SERIES`
 cd "$SRC" &&
 git init && 
 git add . > /dev/null &&
-git commit -m "Unmodified $(basename $SRC) src" > /dev/null &&
+git commit -m "Unmodified $(basename $SRC) src" --allow-empty > /dev/null &&
 stg init && 
 stg import -s "$SERIES" &&
 echo -e "%(description)s\n" > .git/patchexport.tmpl
