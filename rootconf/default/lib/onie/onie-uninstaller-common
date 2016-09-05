@@ -80,8 +80,11 @@ erase_part()
 {
     local blk_dev="$1"
     local part="$2"
-
-    erase_block_device "${blk_dev}$part"
+    # check if we have an mmcblk device
+    blk_suffix=
+    echo ${blk_dev} | grep -q mmcblk && blk_suffix="p"
+	
+    erase_block_device "${blk_dev}$blk_suffix$part"
 
     if [ "$onie_testing" != "y" ] ; then
         printf "${log_pre}Deleting partition $part from /dev/$blk_dev\n"
@@ -102,19 +105,17 @@ erase_part()
 should_delete_gpt_partition()
 {
     # Check for precious GPT Partition GUIDs
-    if [ "$onie_arch" = "x86_64" ] ; then
-        local part_guid="$(sgdisk -i $2 /dev/$1 | grep 'Partition GUID code:')"
-        local part_guid=${part_guid##Partition GUID code: }
-        local part_guid=${part_guid%% *}
-        case "$part_guid" in
-            $uefi_esp_gpt_uuid|$grub_boot_gpt_uuid|$onie_boot_gpt_uuid)
-                # echo "skipping ONIE part"
-                return 1
-                ;;
-            *)
-                ;;
-        esac
-    fi
+    local part_guid="$(sgdisk -i $2 /dev/$1 | grep 'Partition GUID code:')"
+    local part_guid=${part_guid##Partition GUID code: }
+    local part_guid=${part_guid%% *}
+    case "$part_guid" in
+        $uefi_esp_gpt_uuid|$grub_boot_gpt_uuid|$onie_boot_gpt_uuid)
+            # echo "skipping ONIE part"
+            return 1
+            ;;
+        *)
+            ;;
+    esac
 
     # Check for precious GPT Partition names
     local part_name="$(sgdisk -i $2 /dev/$1 | grep 'Partition name:')"
@@ -163,6 +164,8 @@ erase_mass_storage()
         # Wipe out and delete all partitions, except for important ones,
         # like GRUB, ONIE and possibly a DIAG.
         ls -d /sys/block/$blk_dev/${blk_dev}* | sed -e "s/^.*$blk_dev//" | while read part ; do
+            # remove partition prefix p in case of MMC card
+            echo ${blk_dev} | grep -q mmcblk && part="${part:1}"
             if eval $should_delete_partition $blk_dev $part ; then
                 erase_part $blk_dev $part
             fi
